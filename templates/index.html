@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Diabetes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #004e92;
+            --secondary-color: #52b69a;
+            --bg-color: #f0f4f8;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .main-container {
+            max-width: 800px;
+            width: 100%;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .title {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-color);
+        }
+
+        .box {
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .button.is-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .button.is-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 78, 146, 0.2);
+        }
+
+        .button.is-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .button.is-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(82, 182, 154, 0.2);
+        }
+
+        .field.is-grouped {
+            justify-content: center;
+        }
+
+        .result-card,
+        .explanation-card {
+            margin-top: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+        }
+
+        .result-card {
+            background-color: #e6f7ff;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .explanation-card {
+            background-color: #f7f9fb;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .loader-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <h1 class="title is-2 has-text-centered">
+            <span class="icon-text">
+                
+                <span>Análisis de Diabetes</span>
+            </span>
+        </h1>
+        <p class="subtitle is-6 has-text-centered">
+            Introduzca los datos para obtener una predicción de riesgo y una explicación detallada.
+        </p>
+
+        <form id="diabetesForm">
+            <div class="columns is-multiline">
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Presión Arterial Alta</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="HighBP" name="HighBP" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Colesterol Alto</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="HighChol" name="HighChol" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Chequeo de Colesterol (5 años)</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="CholCheck" name="CholCheck" required min="0" max="1" value="1"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Índice de Masa Corporal (BMI)</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="BMI" name="BMI" required step="0.1" value="25.0"></div>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Fuma</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="Smoker" name="Smoker" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Derrame cerebral</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="Stroke" name="Stroke" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Enfermedad cardíaca</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="HeartDiseaseorAttack" name="HeartDiseaseorAttack" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Actividad física</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="PhysActivity" name="PhysActivity" required min="0" max="1" value="1"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Consumo de alcohol</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="HvyAlcoholConsump" name="HvyAlcoholConsump" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Salud general percibida</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="GenHlth" name="GenHlth" required min="1" max="5" value="3"></div>
+                        <p class="help">1=Excelente, ..., 5=Mala</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Dificultad para caminar</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="DiffWalk" name="DiffWalk" required min="0" max="1" value="0"></div>
+                        <p class="help">0 = No, 1 = Sí</p>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">Edad</label>
+                        <div class="control"><input class="input is-rounded" type="number" id="Age" name="Age" required min="18" value="45"></div>
+                        <p class="help">Edad en años (p. ej., 45)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field is-grouped is-justify-content-center">
+                <div class="control">
+                    <button type="submit" id="predictBtn" class="button is-link is-large is-rounded">Predecir</button>
+                </div>
+            </div>
+        </form>
+
+        <div id="loading" class="loader-container">
+            <div class="loader"></div>
+        </div>
+
+        <div id="resultContainer" class="result-card" style="display: none;">
+            <p class="is-size-5 has-text-weight-bold">
+                <span class="icon-text">
+                    <span class="icon"><i class="fas fa-chart-line"></i></span>
+                    <span>Resultado de la Predicción</span>
+                </span>
+            </p>
+            <p id="predictionText" class="title is-4 mt-2"></p>
+        </div>
+
+        <div class="field is-grouped is-justify-content-center" style="margin-top: 1.5rem;">
+            <div class="control">
+                <button id="explainBtn" class="button is-success is-large is-rounded" style="display: none;">
+                    Obtener Explicación
+                </button>
+            </div>
+        </div>
+
+        <div id="explanationContainer" class="explanation-card" style="display: none;">
+            <p class="is-size-5 has-text-weight-bold">
+                <span class="icon-text">
+                    <span class="icon"><i class="fas fa-lightbulb"></i></span>
+                    <span>Explicación de Gemini</span>
+                </span>
+            </p>
+            <p id="explanationText" class="is-size-6 mt-2"></p>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('diabetesForm');
+            const predictBtn = document.getElementById('predictBtn');
+            const explainBtn = document.getElementById('explainBtn');
+            const loading = document.getElementById('loading');
+            const resultContainer = document.getElementById('resultContainer');
+            const explanationContainer = document.getElementById('explanationContainer');
+            const predictionText = document.getElementById('predictionText');
+            const explanationText = document.getElementById('explanationText');
+
+            let lastFormData = null;
+            let lastPrediction = null;
+
+            const getFormData = () => {
+                const data = {};
+                const inputs = form.querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (input.id === 'BMI') {
+                        data[input.id] = parseFloat(input.value);
+                    } else {
+                        data[input.id] = parseInt(input.value, 10);
+                    }
+                });
+                return data;
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                predictBtn.classList.add('is-loading');
+                predictBtn.disabled = true;
+                loading.style.display = 'flex';
+                resultContainer.style.display = 'none';
+                explanationContainer.style.display = 'none';
+                explainBtn.style.display = 'none';
+
+                lastFormData = getFormData();
+
+                try {
+                    const response = await fetch('/predecir', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(lastFormData)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const result = await response.json();
+                    lastPrediction = result.diagnostico;
+                    predictionText.textContent = `Diagnóstico: ${lastPrediction}`;
+                    resultContainer.style.display = 'block';
+                    explainBtn.style.display = 'block';
+
+                } catch (error) {
+                    resultContainer.style.display = 'block';
+                    resultContainer.classList.remove('is-info', 'is-light');
+                    resultContainer.classList.add('is-danger');
+                    predictionText.textContent = `Error: ${error.message}`;
+                    console.error('Error:', error);
+                } finally {
+                    predictBtn.classList.remove('is-loading');
+                    predictBtn.disabled = false;
+                    if (loading.style.display !== 'none') {
+                        loading.style.display = 'none';
+                    }
+                }
+            });
+
+            explainBtn.addEventListener('click', async () => {
+                if (!lastFormData || !lastPrediction) {
+                    console.error("No hay datos de predicción para explicar.");
+                    return;
+                }
+
+                explainBtn.classList.add('is-loading');
+                explainBtn.disabled = true;
+                loading.style.display = 'flex';
+                explanationContainer.style.display = 'none';
+
+                try {
+                    const dataWithPrediction = {
+                        ...lastFormData,
+                        diagnostico: lastPrediction
+                    };
+
+                    const response = await fetch('/explicacion', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dataWithPrediction)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const result = await response.json();
+                    explanationText.textContent = result.explicacion;
+                    explanationContainer.style.display = 'block';
+
+                } catch (error) {
+                    explanationContainer.style.display = 'block';
+                    explanationContainer.classList.remove('is-light');
+                    explanationContainer.classList.add('is-danger');
+                    explanationText.textContent = `Error al obtener la explicación: ${error.message}`;
+                    console.error('Error:', error);
+                } finally {
+                    explainBtn.classList.remove('is-loading');
+                    explainBtn.disabled = false;
+                    if (loading.style.display !== 'none') {
+                        loading.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
